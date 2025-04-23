@@ -3,8 +3,8 @@ from rest_framework.response import Response
 from rest_framework import status
 
 from .models import Product, Vendor
-from .serializers import ProductSerializer
-from .permissions import IsVendorOrReadOnly
+from .serializers import ProductSerializer, VendorSerializer
+from .permissions import IsVendorOrReadOnly, IsAdminAndReadOnly
 
 class ProductViewSet(ModelViewSet):
     permission_classes = [IsVendorOrReadOnly]
@@ -24,3 +24,9 @@ class ProductViewSet(ModelViewSet):
         
         else:
             return Response({"message": "You must be a vendor to create a product"}, status=status.HTTP_400_BAD_REQUEST)
+        
+
+class VendorViewSet(ModelViewSet):
+    queryset = Vendor.objects.all()
+    serializer_class = VendorSerializer
+    permission_classes = [IsAdminAndReadOnly]

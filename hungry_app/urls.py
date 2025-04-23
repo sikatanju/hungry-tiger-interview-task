@@ -5,6 +5,7 @@ from . import views as v
 
 router = DefaultRouter()
 router.register('products', v.ProductViewSet, basename='products')
+router.register('vendors', v.VendorViewSet, basename='vendors')
 
 urlpatterns = [
     # path('hello/', v.hello, name='hello')
