@@ -3,13 +3,12 @@ from django.conf import settings
 
 # Create your models here.
 class Vendor(models.Model):
-    # Also could have used OneToOneField, that would have made some login easier to implement
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=False, related_name='vendor')
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=False, related_name='vendor')
     business_name = models.CharField(max_length=255)
     
 
 class Customer(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=False, related_name='customer')
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=False, related_name='customer')
     phone = models.CharField(max_length=14, blank=True)
     address = models.CharField(max_length=512)
 
