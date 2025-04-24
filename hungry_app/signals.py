@@ -11,7 +11,6 @@ User = get_user_model()
 def create_customer_or_vendor_for_new_user(sender, instance, created, **kwargs):
     if created:
         if instance.is_vendor:
-            if instance.is_vendor:
-                Vendor.objects.create(user=instance)
-            elif instance.is_customer:
+            Vendor.objects.create(user=instance)
+        elif instance.is_customer:
                 Customer.objects.create(user=instance)
