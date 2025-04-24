@@ -1,10 +1,11 @@
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
 
-from .models import Product, Vendor
-from .serializers import ProductSerializer, VendorSerializer
-from .permissions import IsVendorOrReadOnly, IsAdminAndReadOnly
+from .models import Product, Vendor, Customer, OrderItem, Order 
+from .serializers import ProductSerializer, VendorSerializer, CreateOrderSerializer, OrderSerializer, SimpleOrderSerializer
+from .permissions import IsVendorOrReadOnly, IsVendorAndReadOnly, IsCustomerOrReadOnly
 
 class ProductViewSet(ModelViewSet):
     permission_classes = [IsVendorOrReadOnly]
@@ -27,7 +28,35 @@ class ProductViewSet(ModelViewSet):
         
 
 class VendorViewSet(ModelViewSet):
-    # http_method_names = ['get']
     queryset = Vendor.objects.all()
     serializer_class = VendorSerializer
-    permission_classes = [IsAdminAndReadOnly]
+    permission_classes = [IsVendorAndReadOnly]
+
+
+class OrderViewSet(ModelViewSet):
+    permission_classes = [IsAuthenticated, IsCustomerOrReadOnly]
+
+    def get_queryset(self):
+        if self.request.user.is_staff:
+            return Order.objects.all()
+        elif self.request.user.is_customer:
+            print('customer from views :)')
+            return Order.objects.filter(customer__user=self.request.user).prefetch_related('items__product').select_related('customer__user')
+        elif self.request.user.is_vendor:
+            print('Vendor from views :)')
+            vendor = self.request.user.vendor
+            return Order.objects.filter(items__product__vendor=vendor).prefetch_related('items__product').select_related('customer__user').distinct()
+
+    
+    def get_serializer_class(self):
+        if self.request.method == 'POST':
+            return CreateOrderSerializer
+        
+        return OrderSerializer
+    
+
+    def get_serializer_context(self):
+        if self.request.user.is_customer:
+            return {'customer': Customer.objects.get(user=self.request.user)}
+         
+        return super().get_serializer_context()

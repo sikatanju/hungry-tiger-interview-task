@@ -1,5 +1,4 @@
 from rest_framework import permissions
-from .models import Vendor
 
 
 class IsVendorOrReadOnly(permissions.BasePermission):
@@ -16,15 +15,26 @@ class IsVendorOrReadOnly(permissions.BasePermission):
         return (request.user and request.user.is_authenticated and request.user.is_vendor and obj.vendor.user == request.user)
     
 
-class IsAdminAndReadOnly(permissions.BasePermission):
+class IsVendorAndReadOnly(permissions.BasePermission):
     def has_permission(self, request, view):
         if request.method in permissions.SAFE_METHODS:
             return True
         
-        return False
+        return (request.user and request.user.is_authenticated and request.user.is_vendor)
     
     def has_object_permission(self, request, view, obj):
         if request.method in permissions.SAFE_METHODS:
             return True
         
-        return (request.user and request.user.is_vendor and obj.user == request.user)
+        return (obj.user == request.user)
+    
+
+class IsCustomerOrReadOnly(permissions.BasePermission):
+    def has_permission(self, request, view):
+        if request.method in permissions.SAFE_METHODS:
+            return True
+        
+        elif request.method == 'POST' and request.user.is_customer:
+            return True
+        
+        return False
