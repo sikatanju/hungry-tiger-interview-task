@@ -30,6 +30,7 @@ class ProductViewSet(ModelViewSet):
         
 
 class VendorViewSet(ModelViewSet):
+    http_method_names = ['get', 'put', 'patch']
     queryset = Vendor.objects.all()
     serializer_class = VendorSerializer
     permission_classes = [IsVendorAndReadOnly]
@@ -44,12 +45,9 @@ class OrderViewSet(ModelViewSet):
         if self.request.user.is_staff:
             return Order.objects.all()
         elif self.request.user.is_customer:
-            print('customer from views :)')
             return Order.objects.filter(customer__user=self.request.user).prefetch_related('items__product').select_related('customer__user')
         elif self.request.user.is_vendor:
-            print('Vendor from views :)')
-            vendor = self.request.user.vendor
-            return Order.objects.filter(items__product__vendor=vendor).prefetch_related('items__product').select_related('customer__user').distinct()
+            return Order.objects.filter(items__product__vendor=self.request.user.vendor).prefetch_related('items__product').select_related('customer__user').distinct()
 
     
     def get_serializer_class(self):
