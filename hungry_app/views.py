@@ -27,6 +27,7 @@ class ProductViewSet(ModelViewSet):
         
 
 class VendorViewSet(ModelViewSet):
+    # http_method_names = ['get']
     queryset = Vendor.objects.all()
     serializer_class = VendorSerializer
     permission_classes = [IsAdminAndReadOnly]
