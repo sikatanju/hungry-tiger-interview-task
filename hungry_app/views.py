@@ -2,17 +2,22 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.filters import SearchFilter
 
 from .models import Product, Vendor, Customer, OrderItem, Order 
 from .serializers import ProductSerializer, VendorSerializer, CreateOrderSerializer, OrderSerializer, SimpleOrderSerializer
 from .permissions import IsVendorOrReadOnly, IsVendorAndReadOnly, IsCustomerOrReadOnly
 from .pagination import DefaultPagination
+from .filters import ProductFilter
 
 class ProductViewSet(ModelViewSet):
     permission_classes = [IsVendorOrReadOnly]
     serializer_class = ProductSerializer
     pagination_class = DefaultPagination
-    
+    filter_backends = [DjangoFilterBackend, SearchFilter]
+    filterset_class = ProductFilter
+
     def get_queryset(self):
         return Product.objects.all()
 
